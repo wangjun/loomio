@@ -27,7 +27,7 @@ angular.module('loomioApp').directive 'groupActionsDropdown', ->
     @archiveGroup = ->
       ModalService.open ArchiveGroupForm, group: -> $scope.group
 
-    @manageSubscriptionsLink = ->
+    @manageSubscriptions = ->
       $window.open "https://www.billingportal.com/s/#{AppConfig.chargify.appName}/login/magic", '_blank'
       true
 
