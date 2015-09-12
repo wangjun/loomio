@@ -33,6 +33,12 @@ describe SubscriptionsController do
       expect(subscription.reload.kind).to eq 'gift'
       expect(response.status).to eq 200
     end
+
+    it 'responds with bad request if chargify is not set up in-app' do
+      SubscriptionService.stub(:available?).and_return(false)
+      post :webhook, event: :signup_success
+      expect(response.status).to eq 400
+    end
   end
 
 end

@@ -1,9 +1,5 @@
 class ChargifyService
 
-  def self.available?
-    ENV['CHARGIFY_APP_NAME'].present? && ENV['CHARGIFY_API_KEY'].present?
-  end
-
   def initialize(subscription_id)
     @subscription_id = subscription_id
   end

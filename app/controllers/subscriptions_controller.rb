@@ -1,12 +1,16 @@
 class SubscriptionsController < ApplicationController
 
   def webhook
-    case params[:event].try(:to_sym)
-    when :signup_success              then subscription_service.start_subscription!(subscription_params['id'].to_i)
-    when :subscription_product_change then subscription_service.change_plan!(subscription_params['product']['handle'])
-    when :subscription_state_change   then subscription_service.end_subscription! if subscription_params['state'] == 'canceled'
+    if SubscriptionService.available?
+      case params[:event].try(:to_sym)
+      when :signup_success              then subscription_service.start_subscription!(subscription_params['id'].to_i)
+      when :subscription_product_change then subscription_service.change_plan!(subscription_params['product']['handle'])
+      when :subscription_state_change   then subscription_service.end_subscription! if subscription_params['state'] == 'canceled'
+      end
+      head :ok
+    else
+      head :bad_request
     end
-    head :ok
   end
 
   private
