@@ -54,7 +54,8 @@ class Ability
     end
 
     can [:view_payment_details,
-         :choose_subscription_plan], Group do |group|
+         :choose_subscription_plan,
+         :use_gift_subscription], Group do |group|
       group.is_parent? and user_is_admin_of?(group.id) and (!group.has_manual_subscription?)
     end
 
