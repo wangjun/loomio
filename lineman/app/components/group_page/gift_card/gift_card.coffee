@@ -6,5 +6,5 @@ angular.module('loomioApp').directive 'giftCard', ->
   controller: ($scope, $window, AppConfig) ->
 
     $scope.makeDonation = ->
-      $window.open("#{AppConfig.chargify.donation_url}", '_blank')
-      return true # throws an exception without this line
+      $window.open "#{AppConfig.chargify.donation_url}", '_blank'
+      true
