@@ -12,6 +12,10 @@ angular.module('loomioApp').factory 'AbilityService', (CurrentUser) ->
          CurrentUser.isAuthorOf(thread) or
          thread.group().membersCanEditDiscussions)
 
+    canDeleteThread: (thread) ->
+      @canAdministerGroup(thread.group()) or
+      CurrentUser.isAuthorOf(thread)
+
     canVoteOn: (proposal) ->
       proposal.isActive() and
       CurrentUser.isMemberOf(proposal.group()) and
@@ -44,8 +48,9 @@ angular.module('loomioApp').factory 'AbilityService', (CurrentUser) ->
       (CurrentUser.isMemberOf(group) and group.membersCanAddMembers)
 
     canCreateSubgroups: (group) ->
-      @canAdministerGroup(group) or
-      (CurrentUser.isMemberOf(group) and group.membersCanCreateSubgroups)
+      group.isParent() and
+      (@canAdministerGroup(group) or
+      (CurrentUser.isMemberOf(group) and group.membersCanCreateSubgroups))
 
     canEditGroup: (group) ->
       @canAdministerGroup(group)
@@ -77,6 +82,9 @@ angular.module('loomioApp').factory 'AbilityService', (CurrentUser) ->
       group.visibleToPublic() or
       CurrentUser.isMemberOf(group) or
       (group.visibleToOrganisation() and CurrentUser.isMemberOf(group.parent()))
+
+    canViewMemberships: (group) ->
+      CurrentUser.isMemberOf(group)
 
     canJoinGroup: (group) ->
       (group.membershipGrantedUpon == 'request') and

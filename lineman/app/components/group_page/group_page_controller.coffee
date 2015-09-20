@@ -8,7 +8,7 @@ angular.module('loomioApp').controller 'GroupPageController', ($rootScope, $rout
     $rootScope.$broadcast 'setTitle', @group.fullName()
     $rootScope.$broadcast 'analyticsSetGroup', @group
     $rootScope.$broadcast 'trialIsOverdue', @group if @group.trialIsOverdue()
-    MessageChannelService.subscribeTo("/group-#{@group.key}")
+    MessageChannelService.subscribeToGroup(@group)
     if AppConfig.chargify and $location.search().chargify_success?
       ModalService.open SubscriptionSuccessModal
   , (error) ->

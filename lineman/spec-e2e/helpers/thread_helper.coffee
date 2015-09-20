@@ -84,7 +84,7 @@ module.exports = new class ThreadHelper
   threadTitleInput: ->
     element(By.css('.discussion-form__title-input')).clear().sendKeys('Edited thread title')
 
-  descriptionInput: ->
+  contextInput: ->
     element(By.css('.discussion-form__description-input'))
 
   clickUpdateThreadButton: ->
@@ -96,25 +96,34 @@ module.exports = new class ThreadHelper
     @threadTitleInput().clear().sendKeys('Edited thread title')
     @clickUpdateThreadButton()
 
-  editThreadDescription: ->
+  editThreadContext: ->
     @clickThreadOptionsDropdownButton()
     @clickThreadOptionsDropdownEdit()
-    @descriptionInput().clear().sendKeys('Edited thread description')
+    @contextInput().clear().sendKeys('Edited thread context')
     @clickUpdateThreadButton()
 
-  editThreadTitleAndDescription: ->
+  editThreadTitleAndContext: ->
     @clickThreadOptionsDropdownButton()
     @clickThreadOptionsDropdownEdit()
     @threadTitleInput().clear().sendKeys('New edited thread title')
-    @descriptionInput().clear().sendKeys('New edited thread description')
+    @contextInput().clear().sendKeys('New edited thread context')
     @clickUpdateThreadButton()
 
   activityItemList: ->
     element(By.css('.activity-card')).getText()
 
-  openEditThreadForm: ->
+  openThreadOptionsDropdown: ->
     element(By.css('.thread-context__dropdown-button')).click()
+
+  openEditThreadForm: ->
+    @openThreadOptionsDropdown()
     element(By.css('.thread-context__dropdown-options-edit')).click()
 
   discussionTitle: ->
     element(By.css('.thread-context')).getText()
+
+  selectDeleteThreadOption: ->
+    element(By.css('.thread-context__dropdown-options-delete')).click()
+
+  confirmThreadDeletion: ->
+    element(By.css('.delete_thread_form__submit')).click()
