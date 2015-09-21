@@ -4,7 +4,7 @@ class DiscussionService
     # WHOA I TOTALLY NEEDED IT!
     ActiveRecord::Base.connection.execute(
       "UPDATE discussion_readers SET
-       read_comments_count = (SELECT count(id) FROM comments WHERE discussion_id = discussion_readers.discussion_id AND comments.created_at <= discussion_readers.last_read_at ),
+       read_comments_count = (SELECT count(id) FROM events WHERE discussion_id = discussion_readers.discussion_id AND events.created_at <= discussion_readers.last_read_at AND events.kind = 'new_comment'),
        read_items_count = (SELECT count(id) FROM events WHERE discussion_id = discussion_readers.discussion_id AND events.created_at <= discussion_readers.last_read_at AND events.kind IN ('#{Discussion::THREAD_ITEM_KINDS.join('\', \'')}') ),
        read_salient_items_count = (SELECT count(id) FROM events WHERE discussion_id = discussion_readers.discussion_id AND events.created_at <= discussion_readers.last_read_at AND events.kind IN ('#{Discussion::SALIENT_ITEM_KINDS.join('\', \'')}') )")
     ActiveRecord::Base.connection.execute(
