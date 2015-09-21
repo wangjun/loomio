@@ -1,7 +1,15 @@
 class Discussion < ActiveRecord::Base
   PER_PAGE = 50
   SALIENT_ITEM_KINDS = %w[new_comment new_motion new_vote motion_outcome_created]
-  THREAD_ITEM_KINDS = %w[new_comment new_motion new_vote motion_outcome_created motion_outcome_updated]
+  THREAD_ITEM_KINDS = %w[new_comment
+                         new_motion
+                         new_vote
+                         motion_closed
+                         motion_closed_by_user
+                         motion_edited
+                         motion_outcome_created
+                         motion_outcome_updated
+                         discussion_edited]
   paginates_per PER_PAGE
 
   include ReadableUnguessableUrls
