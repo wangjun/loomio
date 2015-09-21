@@ -5,9 +5,7 @@ class API::EventsController < API::RestfulController
 
   def visible_records
     load_and_authorize :discussion
-    resource_class.
-      includes(:user).
-      where(discussion: @discussion).sequenced
+    @discussion.items.sequenced
   end
 
   def page_collection(collection)
