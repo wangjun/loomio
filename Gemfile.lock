@@ -26,6 +26,13 @@ GIT
       sass-rails
 
 GIT
+  remote: git://github.com/gdpelican/custom_counter_cache.git
+  revision: da1c520dc0c1b0b5c180faaa91608b5d64c1e77e
+  specs:
+    custom_counter_cache (0.1.6)
+      rails (>= 3.1)
+
+GIT
   remote: git://github.com/loomio/private_pub.git
   revision: 48feb4b0eaead7480157a41719efbb438bdb425e
   specs:
@@ -678,6 +685,7 @@ DEPENDENCIES
   codeclimate-test-reporter
   coffee-rails
   cucumber-rails
+  custom_counter_cache!
   dalli
   database_cleaner
   delayed-plugins-airbrake

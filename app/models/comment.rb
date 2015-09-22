@@ -38,6 +38,9 @@ class Comment < ActiveRecord::Base
   delegate :locale, to: :user
   delegate :id, to: :group, prefix: :group
 
+  update_counter_cache :discussion, :comments_count
+  update_counter_cache :discussion, :last_comment_at
+
   serialize :liker_ids_and_names, Hash
 
   alias_method :author, :user

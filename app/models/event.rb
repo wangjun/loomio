@@ -4,6 +4,16 @@ class Event < ActiveRecord::Base
              motion_closing_soon motion_closed motion_closed_by_user motion_outcome_created motion_outcome_updated
              membership_requested invitation_accepted user_added_to_group user_joined_group
              membership_request_approved comment_liked comment_replied_to user_mentioned]
+  SALIENT_ITEM_KINDS = %w[new_comment new_motion new_vote motion_outcome_created]
+  THREAD_ITEM_KINDS = %w[new_comment
+                         new_motion
+                         new_vote
+                         motion_closed
+                         motion_closed_by_user
+                         motion_edited
+                         motion_outcome_created
+                         motion_outcome_updated
+                         discussion_edited]
 
   has_many :notifications, dependent: :destroy
   belongs_to :eventable, polymorphic: true
@@ -24,7 +34,11 @@ class Event < ActiveRecord::Base
 
   acts_as_sequenced scope: :discussion_id, column: :sequence_id, skip: lambda {|e| e.discussion.nil? || e.discussion_id.nil? }
 
+  update_counter_cache :discussion, :items_count,         if: -> (event) { THREAD_ITEM_KINDS.include? event.kind }
+  update_counter_cache :discussion, :salient_items_count, if: -> (event) { SALIENT_ITEM_KINDS.include? event.kind }
 
+  update_counter_cache :discussion, :last_item_at,        if: -> (event) { THREAD_ITEM_KINDS.include? event.kind }
+  update_counter_cache :discussion, :last_activity_at,    if: -> (event) { SALIENT_ITEM_KINDS.include? event.kind }
 
   def notify!(user)
     notifications.create!(user: user)

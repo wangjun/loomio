@@ -29,7 +29,7 @@ class BaseController < ApplicationController
       permittedParams: PermittedParamsSerializer.new({}),
       locales: angular_locales,
       baseUrl: root_url,
-      safeThreadItemKinds: Discussion::THREAD_ITEM_KINDS
+      safeThreadItemKinds: Event::THREAD_ITEM_KINDS
     }
 
     render 'layouts/angular', layout: false

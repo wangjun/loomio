@@ -1,15 +1,6 @@
 class Discussion < ActiveRecord::Base
   PER_PAGE = 50
-  SALIENT_ITEM_KINDS = %w[new_comment new_motion new_vote motion_outcome_created]
-  THREAD_ITEM_KINDS = %w[new_comment
-                         new_motion
-                         new_vote
-                         motion_closed
-                         motion_closed_by_user
-                         motion_edited
-                         motion_outcome_created
-                         motion_outcome_updated
-                         discussion_edited]
+
   paginates_per PER_PAGE
 
   include ReadableUnguessableUrls
@@ -56,8 +47,16 @@ class Discussion < ActiveRecord::Base
 
   has_many :events, -> { includes :user }, as: :eventable, dependent: :destroy
 
-  has_many :items, -> { includes(eventable: :user).where(kind: THREAD_ITEM_KINDS).order('created_at ASC') }, class_name: 'Event'
-  has_many :salient_items, -> { includes(eventable: :user).where(kind: SALIENT_ITEM_KINDS).order('created_at ASC') }, class_name: 'Event'
+  has_many :items, -> { includes(eventable: :user).where(kind: Event::THREAD_ITEM_KINDS).order('created_at ASC') }, class_name: 'Event'
+  has_many :salient_items, -> { includes(eventable: :user).where(kind: Event::SALIENT_ITEM_KINDS).order('created_at ASC') }, class_name: 'Event'
+
+  define_counter_cache(:items_count)         { |discussion| discussion.items.count }
+  define_counter_cache(:salient_items_count) { |discussion| discussion.salient_items.count }
+  define_counter_cache(:comments_count)      { |discussion| discussion.comments.count }
+
+  define_counter_cache(:last_item_at)        { |discussion| discussion.items.sequenced.last.try(:created_at) }
+  define_counter_cache(:last_activity_at)    { |discussion| discussion.salient_items.sequenced.last.try(:created_at) || discussion.created_at }
+  define_counter_cache(:last_comment_at)     { |discussion| discussion.comments.maximum(:created_at) }
 
   has_many :discussion_readers
 
@@ -137,34 +136,12 @@ class Discussion < ActiveRecord::Base
   end
 
   def thread_item_created!(item)
-    if THREAD_ITEM_KINDS.include? item.kind
-      self.items_count += 1
-      self.last_item_at = item.created_at
-    end
-
-    if SALIENT_ITEM_KINDS.include? item.kind
-      self.salient_items_count += 1
-      self.last_activity_at = item.created_at
-    end
-
-    if item.kind == 'new_comment'
-      self.comments_count += 1
-      self.last_comment_at = item.created_at
-    end
-
-    if self.first_sequence_id == 0
-      self.first_sequence_id = item.sequence_id
-    end
-
+    self.first_sequence_id = item.sequence_id if self.first_sequence_id == 0
     self.last_sequence_id = item.sequence_id
-
     save!(validate: false)
   end
 
   def thread_item_destroyed!(item)
-    self.items_count -= 1
-    self.salient_items_count -= 1 if SALIENT_ITEM_KINDS.include? item.kind
-
     if item.sequence_id == first_sequence_id
       self.first_sequence_id = sequence_id_or_0(items.sequenced.first)
     end
@@ -172,8 +149,6 @@ class Discussion < ActiveRecord::Base
     if item.sequence_id == last_sequence_id
       last_item = items.sequenced.last
       self.last_sequence_id = sequence_id_or_0(last_item)
-      self.last_item_at = last_item.try(:created_at)
-      self.last_activity_at = salient_items.last.try(:created_at) || created_at
     end
 
     save!(validate: false)
@@ -186,10 +161,6 @@ class Discussion < ActiveRecord::Base
   end
 
   def comment_destroyed!(comment)
-    self.comments_count -= 1
-    self.last_comment_at = comments.maximum(:created_at)
-
-    save!(validate: false)
     discussion_readers.
       where('last_read_at <= ?', comment.created_at).
       each(&:reset_comment_counts!)

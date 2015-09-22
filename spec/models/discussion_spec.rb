@@ -261,6 +261,7 @@ describe Discussion do
       end
 
       it "increments corrently" do
+        discussion.reload
         expect(discussion.items_count).to be 1
         expect(discussion.comments_count).to be 1
         expect(discussion.salient_items_count).to be 1
@@ -362,7 +363,7 @@ describe Discussion do
     end
 
     it "does not increment when creating a non thread-kind item" do
-      stub_const("Discussion::THREAD_ITEM_KINDS", ['new_motion', 'new_discussion']) # not new_comment
+      stub_const("Event::THREAD_ITEM_KINDS", ['new_motion', 'new_discussion']) # not new_comment
       old_items_count = discussion.items_count
       CommentService.create(comment: build(:comment, discussion: discussion), actor: discussion.author)
       expect(discussion.reload.items_count).to eq old_items_count
